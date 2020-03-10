@@ -1,0 +1,93 @@
+// ビルド設定
+
+// Gradle Wrapperの設定
+// `gradlew.bat wrapper` で下記バージョンのGradleが取得される。
+wrapper {
+    gradleVersion = '6.2.1'
+}
+
+// リポジトリ設定
+repositories {
+	mavenCentral()
+}
+
+// 全プロジェクトの共通設定
+allprojects {
+
+    // プラグイン設定
+    apply plugin: "java"
+    apply plugin: "eclipse"
+
+    // リポジトリ設定
+    repositories {
+        mavenCentral()
+    }
+
+    // ----------------------------------------------------------------------------------
+    // 環境別プロパティ設定
+    // ./gradlew -Penv="dev" task  ... 開発環境プロパティでタスク実行
+    // ./gradlew -Penv="stg" task  ... Staging環境プロパティでタスク実行
+    // ./gradlew -Penv="pro" task  ... 本番環境プロパティでタスク実行
+    // ----------------------------------------------------------------------------------
+
+    // デフォルトプロパティ読み込み
+    def props = new ConfigSlurper().parse(new File("$project.rootDir/env/default.gradle").toURI().toURL())
+
+    // 環境別プロパティ読み込み
+    if (project.hasProperty("env")) {
+        def useEnv = project.getProperty("env");
+        def envConfig = new ConfigSlurper().parse(new File("$project.rootDir/env/${useEnv}.gradle").toURI().toURL())
+        // 上書き
+        props = props + envConfig
+    }
+
+    // プロジェクト全体に展開
+    props.each{k,v -> ext.set k, v}
+
+    // application.ymlに対してプロパティ置換
+    processResources {
+        filesMatching('**/application.yml') {
+            expand (properties)
+        }
+    }
+
+    group = "${productGroup}"
+    version = "${productVersion}"
+    sourceCompatibility = "${javaVersion}"
+    targetCompatibility = "${javaVersion}"
+
+    tasks.withType(JavaCompile) {
+        options.encoding = "${sourceEncoding}"
+    }
+
+}
+
+// サブプロジェクトの共通設定
+subprojects {
+
+}
+
+// ----------------------------------------------------------------------------------
+// ワークスペースの生成タスク
+// ----------------------------------------------------------------------------------
+import groovy.json.StringEscapeUtils
+task generateWorkspace {
+    doFirst {
+        copy {
+            from file("${rootDir}/project.code-workspace.template")
+            expand([
+                userJavaHome: StringEscapeUtils.escapeJavaScript(System.getenv()['JAVA_HOME']),
+            ])
+            rename { 'project.code-workspace' }
+            into "${rootDir}/../"
+        }
+    }
+}
+
+// ----------------------------------------------------------------------------------
+// プロジェクト初期化タスク
+// ----------------------------------------------------------------------------------
+task initProject() {
+    dependsOn generateWorkspace
+}
+

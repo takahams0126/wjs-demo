@@ -1,0 +1,7 @@
+.gradle/
+.classpath
+.project
+.factorypath
+.settings/
+.vscode/
+/*.code-workspace

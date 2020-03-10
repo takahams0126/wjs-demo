@@ -1,0 +1,17 @@
+version: '3'
+services:
+  msv_mysql:
+    container_name: msv_mysql
+    hostname: msv_mysql
+    image: mysql:5.7
+    restart: always
+    env_file: .env
+    environment:
+        TZ: "Asia/Tokyo"
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./msv-mysql/data:/var/lib/mysql
+      - ./msv-mysql/initdb.d:/docker-entrypoint-initdb.d
+      - ./msv-mysql/conf/my.cnf:/etc/mysql/conf.d/my.cnf
+      - ./msv-mysql/log:/var/log/mysql

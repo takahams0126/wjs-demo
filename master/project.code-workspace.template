@@ -1,0 +1,68 @@
+{
+    "folders": [
+        {
+            "path": "."
+        }
+    ],
+    "extensions": {
+        "recommendations": [
+            // vscode 日本語拡張
+            "ms-ceintl.vscode-language-pack-ja",
+            // Language Support for Java(TM) by Red Hat
+            "redhat.java",
+            // Debugger for Java
+            "vscjava.vscode-java-debug",
+            // Java Test Runner
+            "vscjava.vscode-java-test",
+            // Java Dependency Viewer
+            "vscjava.vscode-java-dependency",
+            // Visual Studio IntelliCode
+            "VisualStudioExptTeam.vscodeintellicode",
+            // Javadoc Tools for Visual Studio Code
+            "madhavd1.javadoc-tools",
+            // Checkstyle for VS Code
+            "shengchen.vscode-checkstyle",
+            // Spring Boot Tools
+            "pivotal.vscode-spring-boot",
+            // Spring Initializr Java Support
+            "vscjava.vscode-spring-initializr",
+            // Spring Boot Dashboard
+            "vscjava.vscode-spring-boot-dashboard",
+            // Concourse Pipeline and Task Editor
+            "pivotal.vscode-concourse",
+            // Lombok Annotations Support for VS Code
+            "gabrielbb.vscode-lombok",
+            // vscode-gradle-language
+            "naco-siren.gradle-language",
+            // VS Code Gradle
+            "richardwillis.vscode-gradle",
+            // Editor Config for VS code
+            "editorConfig.editorConfig",
+            // GitLens Git supercharged
+            "eamodio.gitlens",
+            // gitignore extension for Visual Studio Code
+            "codezombiech.gitignore",
+            // Project Manager
+            "alefragnani.project-manager",
+            // Docker
+            "ms-azuretools.vscode-docker"
+        ]
+    },
+    "settings": {
+        "editor.formatOnSave": true,
+        "java.home": "${userJavaHome}",
+        "java.format.settings.url": "master/formatter/java/java_formatter.xml",
+        "java.configuration.updateBuildConfiguration": "automatic",
+        "files.exclude": {
+            "**/.classpath": true,
+            "**/.project": true,
+            "**/.settings": true,
+            "**/.factorypath": true,
+            "**/package-info.java": true,
+            "jdk/": true
+        },
+        "terminal.integrated.env.windows": {
+            "JAVA_HOME": "${userJavaHome}"
+        }
+    }
+}

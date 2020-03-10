@@ -1,0 +1,9 @@
+// database
+jdbcDriver="com.mysql.jdbc.Driver"
+mysqlDriverVersion="5.1.47"
+dbHost="localhost"
+dbPort="3307"
+dbName="dev_msv_db"
+dbUser="dev_msv"
+dbPassword="dev_msv"
+dbUrl="jdbc:mysql://localhost:3307/dev_msv_db?useSSL=false"

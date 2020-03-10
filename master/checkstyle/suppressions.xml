@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suppressions PUBLIC
+  "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
+  "https://checkstyle.org/dtds/suppressions_1_2.dtd">
+
+<suppressions>
+    <suppress checks=".*" files=".*hoge\.java" />
+    <suppress checks=".*" files=".*JMsvDb\.java" />
+    <suppress checks=".*" files=".*[\\/]jooq[\\/].*\.java" />
+    <suppress checks=".*" files=".*[\\/]jooq[\\/].*" />
+    <suppress checks=".*" files="[\\/]jooq[\\/]" />
+    <suppress checks=".*" files=".*/jooq/.*" />
+    <suppress checks=".*" files="[\\/]build[\\/]" />
+    <suppress message="Name 'log' must match pattern"/>
+<!--
+    <suppress checks=".*" files=".*jp[\\/]co[\\/]ctc[\\/]wjs[\\/]db[\\/]jooq[\\/]gen[\\/].*\.java" />
+-->
+<!--
+    <suppress checks=".*" files=".*JMsvDb\.java" />
+    <suppress checks=".*" files=".*Indexes\.java" />
+-->
+<!--
+    <suppress checks=".*" files="[\\/]testdata[\\/]" />
+-->
+</suppressions>

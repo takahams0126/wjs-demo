@@ -1,0 +1,145 @@
+#!/bin/bash
+
+# ローカル開発環境でのDB操作スクリプトです。
+# ローカル環境ではDockerでMySQLコンテナを起動して利用します。
+# 第1引数にコマンドを指定します。
+
+# Usage: ldb command
+#
+# command:
+#   start       MySQLコンテナを再起動してFlywayMigrateを実行する
+#   stop        MySQLコンテナを終了する
+#   status      コンテナ状態とMigration状態を表示する
+#   migrate     FlywayMigrateを実行する
+#   testdata    インテグレーションテストデータを登録する
+#   clean       MySQLコンテナのデータベースを初期化する
+#   deepclean   MySQLコンテナを削除する
+#   repair      FlywayMigrateのエラー状態を復旧する
+
+# パラメーター展開中に、設定していない変数があったらエラーとする
+# パイプやサブシェルで実行したコマンドが1つでもエラーになったら直ちにシェルを終了する
+set -ue
+
+# --------------------------------------------------
+# DB開始
+# --------------------------------------------------
+function db_start()
+{
+    # Docker-Composeの停止と開始
+    docker-compose -f ../db-core/docker/docker-compose.yml stop
+    docker-compose -f ../db-core/docker/docker-compose.yml up -d
+
+    sleep 2
+
+    # MySQLコンテナが起動するまで待機する
+    # 2秒間隔でmysqlコマンドからselect発行して起動確認
+    alive_mysql=0
+    while [ $alive_mysql -lt 1 ]
+    do
+        echo "cheking...."
+        docker-compose -f ../db-core/docker/docker-compose.yml exec msv_mysql mysql -u root -ppassword -e'select 1'  #> /dev/null 2>&1
+
+        if [ $? -eq 0 ]; then
+            alive_mysql=1
+        fi
+
+        sleep 2
+    done
+
+    # FlywayMigrateを実行
+    echo "start migrate ...."
+    sh ./gradlew -i flywayMigrate
+}
+
+# --------------------------------------------------
+# DB終了
+# --------------------------------------------------
+function db_stop()
+{
+    docker-compose -f ../db-core/docker/docker-compose.yml stop
+}
+
+# --------------------------------------------------
+# コンテナ状態とMigration状態を表示
+# --------------------------------------------------
+function db_status()
+{
+    docker-compose -f ../db-core/docker/docker-compose.yml ps -a
+    sh ./gradlew flywayInfo
+}
+
+# --------------------------------------------------
+# FlywayMigrate実行
+# --------------------------------------------------
+function db_migrate()
+{
+    sh ./gradlew -i flywayMigrate
+}
+
+# --------------------------------------------------
+# インテグレーションテストデータ投入
+# --------------------------------------------------
+function db_testdata()
+{
+    sh ./gradlew -i --stacktrace flywayMigrate -Dflyway.locations=classpath:testdata
+    #sh ../master/gradlew -i flywayMigrate -Dflyway.locations=filesystem:./src/test/resources/testdata
+    #sh ../master/gradlew -i flywayMigrate -Dflyway.locations=classpath:testdata
+}
+
+# --------------------------------------------------
+# DB初期化
+# --------------------------------------------------
+function db_clean()
+{
+    sh ./gradlew flywayClean
+}
+
+# --------------------------------------------------
+# コンテナ削除
+# --------------------------------------------------
+function db_deepclean()
+{
+    docker-compose -f ../db-core/docker/docker-compose.yml rm -f
+}
+
+# --------------------------------------------------
+# エラー復旧
+# --------------------------------------------------
+function db_repair()
+{
+    sh ./gradlew flywayRepair
+}
+
+# --------------------------------------------------
+# usage表示
+# --------------------------------------------------
+function usage()
+{
+    sed -rn '/^# Usage/,${/^#/!q;s/^# ?//;p}' "$0"
+    exit 1
+}
+
+# --------------------------------------------------
+# メイン処理
+# --------------------------------------------------
+
+# 引数チェック
+if [ $# -ne 1 ]; then
+    usage
+fi
+
+# 引数によって実行コマンドを分岐
+case $1 in
+    "start") db_start ;;
+    "stop")  db_stop ;;
+    "status") db_status ;;
+    "migrate") db_migrate ;;
+    "testdata") db_testdata ;;
+    "clean") db_clean ;;
+    "deepclean") db_deepclean ;;
+    "repair") db_repair ;;
+    *) usage ;;
+esac
+
+
+

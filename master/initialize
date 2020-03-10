@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# JAVA_HOMEをプロジェクト配下のJDKに設定
+DIR=`echo $(cd $(dirname $0)/../jdk/amazon-corretto-11 && pwd)`
+JAVA_HOME=`echo $DIR | sed -e 's/^\/\([a-zA-Z]\)\//\1:\\\\/' | sed -e 's/\//\\\\/g'`
+
+# MySQLコンテナのローカルVolume向けにディレクトリ作成
+mkdir -p ../db-core/docker/msv-mysql/data
+mkdir -p ../db-core/docker/msv-mysql/initdb.d
+mkdir -p ../db-core/docker/msv-mysql/log
+
+# vscodeワークスペース設定を初期化
+sh ./gradlew --stacktrace initProject eclipse
+
+

@@ -1,0 +1,99 @@
+#!/bin/bash
+
+# リモート環境でのDB操作スクリプトです。
+# 第1引数に環境識別子を指定します。
+# 第2引数にコマンドを指定します。
+
+# Usage: rdb env command
+#
+# env:
+#   dev         開発環境
+#   stg         Staging環境
+#   pro         本番環境
+#
+# command:
+#   status      Migration状態を表示する
+#   migrate     FlywayMigrateを実行する
+#   testdata    インテグレーションテストデータを登録する
+#   clean       データベースを初期化する
+#   repair      FlywayMigrateのエラー状態を復旧する
+
+# パラメーター展開中に、設定していない変数があったらエラーとする
+# パイプやサブシェルで実行したコマンドが1つでもエラーになったら直ちにシェルを終了する
+set -ue
+
+# --------------------------------------------------
+# コンテナ状態とMigration状態を表示
+# --------------------------------------------------
+function db_status()
+{
+    sh ./gradlew -Penv=$1 flywayInfo
+}
+
+# --------------------------------------------------
+# FlywayMigrate実行
+# --------------------------------------------------
+function db_migrate()
+{
+    sh ./gradlew -Penv=$1 flywayMigrate
+}
+
+# --------------------------------------------------
+# インテグレーションテストデータ投入
+# --------------------------------------------------
+function db_testdata()
+{
+    sh ./gradlew --stacktrace -Penv=$1 flywayMigrate -Dflyway.locations=filesystem:./src/test/resources/testdata
+}
+
+# --------------------------------------------------
+# DB初期化
+# --------------------------------------------------
+function db_clean()
+{
+    sh ./gradlew -Penv=$1 flywayClean
+}
+
+# --------------------------------------------------
+# エラー復旧
+# --------------------------------------------------
+function db_repair()
+{
+    sh ./gradlew -Penv=$1 flywayRepair
+}
+
+# --------------------------------------------------
+# usage表示
+# --------------------------------------------------
+function usage()
+{
+    sed -rn '/^# Usage/,${/^#/!q;s/^# ?//;p}' "$0"
+    exit 1
+}
+
+# --------------------------------------------------
+# メイン処理
+# --------------------------------------------------
+
+# 引数チェック
+if [ $# -ne 2 ]; then
+    usage
+fi
+
+if [ $1 != 'dev' ] && [ $1 != 'stg' ] && [ $1 != 'pro' ] ; then
+    echo "環境識別子はdev, stg, proのどれかを指定してください"
+    exit 1
+fi
+
+# 引数によって実行コマンドを分岐
+case $2 in
+    "status")   db_status $1 ;;
+    "migrate")  db_migrate $1 ;;
+    "testdata") db_testdata $1 ;;
+    "clean")    db_clean $1 ;;
+    "repair")   db_repair $1 ;;
+    *)          usage ;;
+esac
+
+
+
