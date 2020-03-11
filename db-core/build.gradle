@@ -70,6 +70,7 @@ jooq {
                 daos = true
                 immutablePojos = true
                 pojosEqualsAndHashCode = true
+                javaTimeTypes = true
             }
         }
     }

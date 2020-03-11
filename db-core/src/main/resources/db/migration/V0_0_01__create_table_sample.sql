@@ -7,7 +7,7 @@ CREATE TABLE msv_user (
     PRIMARY KEY (id)
 );
 
-CREATE TABLE item (
+CREATE TABLE entry (
     id               INT NOT NULL,
     name             VARCHAR(20) NOT NULL,
     created_at       DATETIME DEFAULT NULL,
